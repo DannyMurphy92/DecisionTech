@@ -20,7 +20,7 @@ namespace Shop.Core.Services
 
         public Product GetProductByName(string name)
         {
-            return products.FirstOrDefault(p => p.Name == name);
+            return products.FirstOrDefault(p => p.Name.ToLower() == name.ToLower().Trim());
         }
     }
 }
