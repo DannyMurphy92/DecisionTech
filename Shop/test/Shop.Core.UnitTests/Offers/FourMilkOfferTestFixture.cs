@@ -22,10 +22,11 @@ namespace Shop.Core.UnitTests.Offers
             fixture = new Fixture().Customize(new AutoConfiguredMoqCustomization());
         }
 
+        [TestCase(0, 1.15, 100, 100)]
         [TestCase(3, 1.15, 100, 100)]
         [TestCase(4, 1.15, 4.60, 3.45)]
         [TestCase(9, 1.15, 10.35, 8.05)]
-        public void ApplyDiscount_WhenLessThanFourMilkInBasket_TotalRemainsUnchanged(int qtyMilk, double priceMilk, double initTotal, double expected)
+        public void ApplyDiscount_WhenThereIsXAmountOfMilkInBasket_TotalIsCalculatedCorrectly(int qtyMilk, double priceMilk, double initTotal, double expected)
         {
             // Arrange
             var milk = fixture.Build<Product>()
@@ -38,10 +39,28 @@ namespace Shop.Core.UnitTests.Offers
             var subject = new FourMilkOffer();
 
             // Act
-            var reuslt = Math.Round(subject.ApplyDiscount(basket, initTotal), 2);
+            var result = Math.Round(subject.ApplyDiscount(basket, initTotal), 2);
 
             // Assert
-            Assert.AreEqual(expected, reuslt);
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public void ApplyDiscount_WhenThereIsNoMilkInBasket_TotalRemainsUnchanged()
+        {
+            // Arrange
+            var initTotal = 100;
+            var product = fixture.Create<Product>();
+            var basket = new Basket();
+            basket.AddItem(product, 10);
+
+            var subject = new FourMilkOffer();
+
+            // Act
+            var result = subject.ApplyDiscount(basket, initTotal);
+
+            // Assert
+            Assert.AreEqual(initTotal, result);
         }
     }
 }
