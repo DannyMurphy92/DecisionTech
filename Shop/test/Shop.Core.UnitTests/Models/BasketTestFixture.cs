@@ -1,9 +1,7 @@
 ﻿using NUnit.Framework;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using AutoFixture;
+using AutoFixture.AutoMoq;
 using Shop.Core.Models;
 
 namespace Shop.Core.UnitTests.Models
@@ -11,6 +9,13 @@ namespace Shop.Core.UnitTests.Models
     [TestFixture]
     public class BasketTestFixture
     {
+        private IFixture fixture;
+
+        [OneTimeSetUp]
+        public void OneTimeSetup()
+        {
+            fixture = new Fixture().Customize(new AutoConfiguredMoqCustomization());
+        }
 
         [Test]
         public void Instance_WhenCalledMultipleTimes_ReturnsTheSameInstanceOfBasket()
@@ -23,6 +28,45 @@ namespace Shop.Core.UnitTests.Models
 
             // Assert
             Assert.AreEqual(ins1, ins2);
+        }
+
+        [Test]
+        public void AddItem_WhenInvoked_AddsCorrectItemAndQuantityToBasket()
+        {
+            // Arrange
+            var subject = Basket.Instance();
+            var product = fixture.Create<Product>();
+            var quantity = 10;
+
+            // Act
+            subject.AddItem(product, quantity);
+
+            // Assert
+            Assert.That(subject.Items.Any(i => i.Product.Name == product.Name && i.Quantity == quantity));
+        }
+
+        [Test]
+        public void AddItem_IfItemWithNameAlreadyInBasket_IncrementsQuantityByCorrectAmount()
+        {
+            // Arrange
+            var subject = Basket.Instance();
+            var initProduct = fixture.Create<Product>();
+            var additonalProduct = fixture.Build<Product>()
+                .With(p => p.Name, initProduct.Name)
+                .Create();
+
+            var initQty = 10;
+            var additionalQty = 5;
+
+            subject.AddItem(initProduct, initQty);
+            Assert.That(subject.Items.Any(i => i.Product == initProduct && i.Quantity == initQty));
+
+            // Act
+            subject.AddItem(additonalProduct, additionalQty);
+
+            // Assert
+            Assert.AreEqual(1, subject.Items.Select(i => i.Product.Name == initProduct.Name).Count());
+            Assert.That(subject.Items.Any(i => i.Product.Name == initProduct.Name && i.Quantity == (initQty + additionalQty)));
         }
     }
 }
