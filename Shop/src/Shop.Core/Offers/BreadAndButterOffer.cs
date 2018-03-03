@@ -1,11 +1,9 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Shop.Core.Models;
-using Shop.Core.Offers.Interfaces;
 
 namespace Shop.Core.Offers
 {
-    public class BreadAndButterOffer : IOffer
+    public class BreadAndButterOffer : OfferBase
     {
         private const string Bread = "bread";
         private const string Butter = "butter";
@@ -13,31 +11,51 @@ namespace Shop.Core.Offers
         private const int OfferBreadQty = 1;
         private const double PcValBreadOffer = 0.5;
 
-        public double ApplyDiscount(Basket basket, double currentTotal)
+        protected override bool OfferCanBeApplied(Basket basket)
         {
-            var result = currentTotal;
-            var breadBasket = basket.Items.FirstOrDefault(i => i.Product.Name.ToLower().Trim() == Bread);
-            var butterBasket = basket.Items.FirstOrDefault(i => i.Product.Name.ToLower().Trim() == Butter);
-            if (breadBasket != null && butterBasket != null && 
-                breadBasket.Quantity >= OfferBreadQty && butterBasket.Quantity >= OfferButterQty)
-            {
-                var breadPrice = breadBasket.Product.Price;
-                var butterPrice = butterBasket.Product.Price;
+            var breadBasket = GetBreadFromBasket(basket);
+            var butterBasket = GetButterFromBasket(basket);
 
-                var numBreadApplications = breadBasket.Quantity / OfferBreadQty;
-                var numButterApplications = butterBasket.Quantity / OfferButterQty;
+            return (breadBasket != null && butterBasket != null &&
+                    breadBasket.Quantity >= OfferBreadQty && butterBasket.Quantity >= OfferButterQty);
+        }
 
-                var numApplications = (numButterApplications < numBreadApplications)
-                    ? numButterApplications
-                    : numBreadApplications;
+        protected override int NumberOfTimesOfferCanBeApplied(Basket basket)
+        {
+            var breadBasket = GetBreadFromBasket(basket);
+            var butterBasket = GetButterFromBasket(basket);
 
-                var origPrice = breadPrice * OfferBreadQty * numApplications;
-                var newPrice = breadPrice * OfferBreadQty * numApplications * PcValBreadOffer;
+            var numBreadApplications = breadBasket.Quantity / OfferBreadQty;
+            var numButterApplications = butterBasket.Quantity / OfferButterQty;
 
-                result = result - origPrice + newPrice;
-            }
+            return (numButterApplications < numBreadApplications)
+                ? numButterApplications
+                : numBreadApplications;
 
-            return result;
+        }
+
+        protected override double OriginalPriceOfAffectedProductsBeforeOffer(Basket basket)
+        {
+            var breadBasket = GetBreadFromBasket(basket);
+
+            return breadBasket.Product.Price * OfferBreadQty;
+        }
+
+        protected override double PriceOfAffectedProductsAfterOfferApplied(Basket basket)
+        {
+            var breadBasket = GetBreadFromBasket(basket);
+
+            return breadBasket.Product.Price * OfferBreadQty * PcValBreadOffer;
+        }
+
+        private BasketItem GetBreadFromBasket(Basket basket)
+        {
+            return basket.Items.FirstOrDefault(i => i.Product.Name.ToLower().Trim() == Bread);
+        }
+
+        private BasketItem GetButterFromBasket(Basket basket)
+        {
+            return basket.Items.FirstOrDefault(i => i.Product.Name.ToLower().Trim() == Butter);
         }
     }
 }

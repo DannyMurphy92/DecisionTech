@@ -1,31 +1,45 @@
 ﻿using System.Linq;
 using Shop.Core.Models;
-using Shop.Core.Offers.Interfaces;
 
 namespace Shop.Core.Offers
 {
-    public class FourMilkOffer : IOffer
+    public class FourMilkOffer : OfferBase
     {
         private const string Milk = "milk";
         private const int OfferQty = 4;
         private const int EquivQty = 3;
-
-        public double ApplyDiscount(Basket basket, double currentTotal)
+        
+        protected override bool OfferCanBeApplied(Basket basket)
         {
-            var result = currentTotal;
-            var milkBasket = basket.Items.FirstOrDefault(i => i.Product.Name.ToLower().Trim() == Milk);
-            if (milkBasket != null && milkBasket.Quantity >= OfferQty)
-            {
-                var milkPrice = milkBasket.Product.Price;
-                int numApplications = milkBasket.Quantity / OfferQty;
+            var milkBasket = GetMilkItemFromBasket(basket);
 
-                var origPrice = milkPrice * OfferQty * numApplications;
-                var newPrice = milkPrice * EquivQty * numApplications;
+            return milkBasket != null && milkBasket.Quantity >= OfferQty;
+        }
 
-                result = result - origPrice + newPrice;
-            }
+        protected override int NumberOfTimesOfferCanBeApplied(Basket basket)
+        {
+            var milkBasket = GetMilkItemFromBasket(basket);
 
-            return result;
+            return milkBasket.Quantity / OfferQty;
+        }
+
+        protected override double OriginalPriceOfAffectedProductsBeforeOffer(Basket basket)
+        {
+            var milkBasket = GetMilkItemFromBasket(basket);
+
+            return milkBasket.Product.Price * OfferQty;
+        }
+
+        protected override double PriceOfAffectedProductsAfterOfferApplied(Basket basket)
+        {
+            var milkBasket = GetMilkItemFromBasket(basket);
+
+            return milkBasket.Product.Price * EquivQty;
+        }
+
+        private BasketItem GetMilkItemFromBasket(Basket basket)
+        {
+            return basket.Items.FirstOrDefault(i => i.Product.Name.ToLower().Trim() == Milk);
         }
     }
 }
