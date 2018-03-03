@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using Moq;
 using NUnit.Framework;
 using Shop.Core.Models;
+using Shop.Core.Offers.Interfaces;
 using Shop.Core.Services;
 using Shop.Core.Services.Interfaces;
 
@@ -19,8 +18,10 @@ namespace Shop.Core.UnitTests.Services
         private IFixture fixture;
 
         private Mock<IProductRepo> productRepoMock;
+        private IList<Mock<IOffer>> offersMock;
         private Product product;
         private Basket basket;
+        private IList<double> resultTotals;
 
         [OneTimeSetUp]
         public void OneTimeSetup()
@@ -34,17 +35,33 @@ namespace Shop.Core.UnitTests.Services
         public void Setup()
         {
             product = fixture.Create<Product>();
-
+            offersMock = fixture.Freeze<IList<Mock<IOffer>>>();
             productRepoMock.Setup(p => p.GetProductByName(It.IsAny<string>()))
                 .Returns(() => product);
 
-            basket = new Basket();
+
+            resultTotals = fixture.CreateMany<double>(offersMock.Count).ToList();
+            for (int i = 0; i < resultTotals.Count; i++)
+            {
+                offersMock[i].Setup(o => o.ApplyDiscount(It.IsAny<Basket>(), It.IsAny<double>()))
+                    .Returns(resultTotals[i]);
+            }
+            
+            basket = fixture.Create<Basket>();
+            basket.AddItem(fixture.Create<Product>(), fixture.Create<int>());
+            basket.AddItem(fixture.Create<Product>(), fixture.Create<int>());
+            basket.AddItem(fixture.Create<Product>(), fixture.Create<int>());
         }
 
         [TearDown]
         public void Teardown()
         {
             productRepoMock.Reset();
+
+            foreach (var offer in offersMock)
+            {
+                offer.Reset();
+            }
         }
 
         [Test]
@@ -52,7 +69,7 @@ namespace Shop.Core.UnitTests.Services
         {
             // Arrange
             var productName = fixture.Create<string>();
-            var subject = fixture.Create<BasketService>();
+            var subject = CreateBasketService();
 
             // Act
             subject.AddProductToBasket(basket, productName, 1);
@@ -66,7 +83,7 @@ namespace Shop.Core.UnitTests.Services
         {
             // Arrange
             var quantity = 1;
-            var subject = fixture.Create<BasketService>();
+            var subject = CreateBasketService();
 
             // Act
             subject.AddProductToBasket(basket, fixture.Create<string>(), quantity);
@@ -74,7 +91,6 @@ namespace Shop.Core.UnitTests.Services
             // Assert
             Assert.IsTrue(basket.Items.Any(i => i.Product.Name == product.Name && i.Quantity == quantity));
         }
-
 
         [Test]
         public void AddPRoductToBasket_WhenProductDoesNotExist_NothingIsAddedToTheBasket()
@@ -99,12 +115,51 @@ namespace Shop.Core.UnitTests.Services
             AssertBasketDoesNotUpdate(product.Name, -1);
         }
 
+        [Test]
+        public void CalculateTotal_WhenInvoked_UpdatesTotalToResultFromOffers()
+        {
+            // Arrange
+            var initTotal = CalculateTotalWithoutOffers();
+
+            var subject = CreateBasketService();
+
+            // Act
+            var result = subject.CalculateTotal(basket);
+
+            // Assert
+            for (int i = 0; i < resultTotals.Count(); i++)
+            {
+                if (i > 0)
+                {
+                    initTotal = resultTotals[i - 1];
+                }
+                offersMock[i].Verify(o => o.ApplyDiscount(basket, initTotal), Times.Once);
+            }
+            Assert.AreEqual(resultTotals[resultTotals.Count - 1], result);
+        }
+
+        [Test]
+        public void CalculateTotal_IfNoOffers_ReturnsRegularBasketTotal()
+        {
+            // Arrange
+            offersMock = new List<Mock<IOffer>>();
+            var expected = Math.Round(CalculateTotalWithoutOffers(),2);
+
+            var subject = CreateBasketService();
+
+            // Act
+            var resut = Math.Round(subject.CalculateTotal(basket), 2);
+
+            // Assert
+            Assert.AreEqual(expected, resut);
+        }
+
         private void AssertBasketDoesNotUpdate(string productName, int quantity)
         {
             // Arrange
             var initItemCount = basket.Items.Count;
             var initProductCount = basket.Items.FirstOrDefault(i => i.Product.Name == productName)?.Quantity;
-            var subject = fixture.Create<BasketService>();
+            var subject = CreateBasketService();
 
             // Act
             subject.AddProductToBasket(basket, fixture.Create<string>(), quantity);
@@ -114,6 +169,24 @@ namespace Shop.Core.UnitTests.Services
 
             Assert.AreEqual(initItemCount, basket.Items.Count());
             Assert.AreEqual(initProductCount, finalProductCount);
+        }
+
+        private double CalculateTotalWithoutOffers()
+        {
+            var result = 0d;
+
+            foreach (var item in basket.Items)
+            {
+                result += item.Quantity * item.Product.Price;
+            }
+
+            return result;
+        }
+
+        //Needed because of issue injecting list of mock IOffers
+        private BasketService CreateBasketService()
+        {
+            return new BasketService(productRepoMock.Object, offersMock.Select(o => o.Object).ToList());
         }
     }
 }
