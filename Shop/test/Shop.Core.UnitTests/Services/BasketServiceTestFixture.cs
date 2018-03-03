@@ -20,6 +20,7 @@ namespace Shop.Core.UnitTests.Services
 
         private Mock<IProductRepo> productRepoMock;
         private Product product;
+        private Basket basket;
 
         [OneTimeSetUp]
         public void OneTimeSetup()
@@ -36,6 +37,8 @@ namespace Shop.Core.UnitTests.Services
 
             productRepoMock.Setup(p => p.GetProductByName(It.IsAny<string>()))
                 .Returns(() => product);
+
+            basket = new Basket();
         }
 
         [TearDown]
@@ -52,7 +55,7 @@ namespace Shop.Core.UnitTests.Services
             var subject = fixture.Create<BasketService>();
 
             // Act
-            subject.AddProductToBasket(productName, 1);
+            subject.AddProductToBasket(basket, productName, 1);
 
             // Assert
             productRepoMock.Verify(p => p.GetProductByName(productName), Times.Once);
@@ -66,10 +69,9 @@ namespace Shop.Core.UnitTests.Services
             var subject = fixture.Create<BasketService>();
 
             // Act
-            subject.AddProductToBasket(fixture.Create<string>(), quantity);
+            subject.AddProductToBasket(basket, fixture.Create<string>(), quantity);
 
             // Assert
-            var basket = Basket.Instance();
             Assert.IsTrue(basket.Items.Any(i => i.Product.Name == product.Name && i.Quantity == quantity));
         }
 
@@ -100,13 +102,12 @@ namespace Shop.Core.UnitTests.Services
         private void AssertBasketDoesNotUpdate(string productName, int quantity)
         {
             // Arrange
-            var basket = Basket.Instance();
             var initItemCount = basket.Items.Count;
             var initProductCount = basket.Items.FirstOrDefault(i => i.Product.Name == productName)?.Quantity;
             var subject = fixture.Create<BasketService>();
 
             // Act
-            subject.AddProductToBasket(fixture.Create<string>(), quantity);
+            subject.AddProductToBasket(basket, fixture.Create<string>(), quantity);
 
             // Assert
             var finalProductCount = basket.Items.FirstOrDefault(i => i.Product.Name == productName)?.Quantity;

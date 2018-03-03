@@ -8,19 +8,14 @@ namespace Shop.Core.Models
 {
     public class Basket
     {
-        private static Basket instance;
 
-        private Basket()
+        public IList<BasketItem> Items { get; }
+
+
+        public Basket()
         {
             Items = new List<BasketItem>();
         }
-
-        public static Basket Instance()
-        {
-            return instance ?? (instance = new Basket());
-        }
-
-        public IList<BasketItem> Items { get; private set; }
 
         public void AddItem(Product product, int quantity)
         {

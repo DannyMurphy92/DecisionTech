@@ -17,14 +17,13 @@ namespace Shop.Core.Services
             this.productRepo = productRepo;
         }
 
-        public void AddProductToBasket(string name, int quantity)
+        public void AddProductToBasket(Basket basket, string name, int quantity)
         {
             if (quantity > 0)
             {
                 var product = productRepo.GetProductByName(name);
                 if (product != null)
                 {
-                    var basket = Basket.Instance();
                     basket.AddItem(product, quantity);
                 }
             }

@@ -18,23 +18,10 @@ namespace Shop.Core.UnitTests.Models
         }
 
         [Test]
-        public void Instance_WhenCalledMultipleTimes_ReturnsTheSameInstanceOfBasket()
-        {
-            // Arrange
-
-            // Act
-            var ins1 = Basket.Instance();
-            var ins2 = Basket.Instance();
-
-            // Assert
-            Assert.AreEqual(ins1, ins2);
-        }
-
-        [Test]
         public void AddItem_WhenInvoked_AddsCorrectItemAndQuantityToBasket()
         {
             // Arrange
-            var subject = Basket.Instance();
+            var subject = new Basket();
             var product = fixture.Create<Product>();
             var quantity = 10;
 
@@ -49,7 +36,7 @@ namespace Shop.Core.UnitTests.Models
         public void AddItem_IfItemWithNameAlreadyInBasket_IncrementsQuantityByCorrectAmount()
         {
             // Arrange
-            var subject = Basket.Instance();
+            var subject = new Basket();
             var initProduct = fixture.Create<Product>();
             var additonalProduct = fixture.Build<Product>()
                 .With(p => p.Name, initProduct.Name)
