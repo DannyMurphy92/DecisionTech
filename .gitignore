@@ -2,8 +2,7 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/Shop/src/Shop.Core/bin/
-/Shop/src/Shop.Core/obj
-/Shop/test/Shop.Core.UnitTests/obj
-/Shop/test/Shop.Core.UnitTests/bin/
+**/bin
+**/obj
 /Shop/.vs/
+/Shop/src/Shop.Cli/Properties/launchSettings.json

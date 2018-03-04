@@ -11,7 +11,7 @@ namespace Shop.Core.Services
     public class ProductRepo : IProductRepo
     {
         //Could be replaced with datastore, CSV etc.
-        private IList<Product> products;
+        private readonly IList<Product> products;
 
         public ProductRepo(IList<Product> products)
         {
