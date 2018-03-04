@@ -2,7 +2,7 @@
 
 namespace Shop.Cli.Commands.AddItem
 {
-    [Verb("add")]
+    [Verb("add", HelpText = "Adds an item to the basket")]
     public class AddItemOptions
     {
         [Option('i', "item", HelpText = "Name of the item to add to the basket")]

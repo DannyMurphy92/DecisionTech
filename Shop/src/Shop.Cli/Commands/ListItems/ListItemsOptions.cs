@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CommandLine;
+﻿using CommandLine;
 
 namespace Shop.Cli.Commands.ListItems
 {
-    [Verb("list")]
+    [Verb("list", HelpText = "Lists all the available products")]
     public class ListItemsOptions
     {
         

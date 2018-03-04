@@ -2,7 +2,7 @@
 
 namespace Shop.Cli.Commands.TotalBasket
 {
-    [Verb("total")]
+    [Verb("total", HelpText = "Calculates the total of the basket including applicable offers")]
     public class TotalBasketOptions
     {
         

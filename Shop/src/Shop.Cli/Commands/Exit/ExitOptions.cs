@@ -2,7 +2,7 @@
 
 namespace Shop.Cli.Commands.Exit
 {
-    [Verb("exit")]
+    [Verb("exit", HelpText = "Exits the application")]
     public class ExitOptions
     {
         

@@ -3,6 +3,7 @@ using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
 using Shop.Cli.Commands.AddItem;
 using Shop.Cli.Commands.Exit;
+using Shop.Cli.Commands.ListBasket;
 using Shop.Cli.Commands.ListItems;
 using Shop.Cli.Commands.TotalBasket;
 using Shop.Core.Installers;
@@ -29,6 +30,10 @@ namespace Shop.Cli.Installers
             );
             container.Register(
                 Component.For<ExitCommand>()
+                    .LifestyleSingleton()
+            );
+            container.Register(
+                Component.For<ListBasketItemsCommand>()
                     .LifestyleSingleton()
             );
         }
