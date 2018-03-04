@@ -22,5 +22,10 @@ namespace Shop.Core.Services
         {
             return products.FirstOrDefault(p => p.Name.ToLower() == name.ToLower().Trim());
         }
+
+        public IList<Product> GetAll()
+        {
+            return products;
+        }
     }
 }

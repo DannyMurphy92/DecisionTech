@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using AutoFixture;
 using NUnit.Framework;
 using Shop.Core.Models;
@@ -11,7 +9,7 @@ using Shop.Core.Services;
 namespace Shop.Core.UnitTests.Services
 {
     [TestFixture]
-    public class ProductServiceTestFixture
+    public class ProductRepoTestFixture
     {
         private IFixture fixture;
 
@@ -26,7 +24,6 @@ namespace Shop.Core.UnitTests.Services
         [SetUp]
         public void Setup()
         {
-
             products = fixture.CreateMany<Product>(10).ToList();
         }
 
@@ -54,6 +51,19 @@ namespace Shop.Core.UnitTests.Services
 
             // Assert
             Assert.IsNull(result);
+        }
+
+        [Test]
+        public void GetAll_WhenInvoked_ReturnsTheFullListOfAvailableProducts()
+        {
+            // Arrange
+            var subject = new ProductRepo(products);
+
+            // Act
+            var result = subject.GetAll();
+
+            // Assert
+            Assert.IsTrue(products.All(p => result.Any(r => r.Name == p .Name)));
         }
     }
 }

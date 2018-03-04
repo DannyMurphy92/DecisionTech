@@ -3,6 +3,7 @@ using Castle.Windsor;
 using CommandLine;
 using Shop.Cli.Commands;
 using Shop.Cli.Commands.AddItem;
+using Shop.Cli.Commands.ListItems;
 using Shop.Cli.Commands.TotalBasket;
 using Shop.Cli.Installers;
 using Shop.Core.Models;
@@ -22,11 +23,12 @@ namespace Shop.Cli
 
             while (args != null && args[0].ToLower() != "e")
             {
-                var options = Parser.Default.ParseArguments<AddItemOptions, TotalBasketOptions>(args);
+                var options = Parser.Default.ParseArguments<AddItemOptions, TotalBasketOptions, ListItemsOptions>(args);
 
                 options.MapResult(
                     (AddItemOptions opts) => container.Resolve<AddItemCommand>().Execute(opts, basket),
                     (TotalBasketOptions opts) => container.Resolve<TotalBasketCommand>().Execute(opts, basket),
+                    (ListItemsOptions opts) => container.Resolve<ListItemsCommand>().Execute(opts),
                     errs => 1
                 );
 
