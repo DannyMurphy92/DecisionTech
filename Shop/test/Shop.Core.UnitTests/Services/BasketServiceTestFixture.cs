@@ -86,33 +86,35 @@ namespace Shop.Core.UnitTests.Services
             var subject = CreateBasketService();
 
             // Act
-            subject.AddProductToBasket(basket, fixture.Create<string>(), quantity);
+            var result = subject.AddProductToBasket(basket, fixture.Create<string>(), quantity);
 
             // Assert
+            Assert.IsTrue(result);
             Assert.IsTrue(basket.Items.Any(i => i.Product.Name == product.Name && i.Quantity == quantity));
         }
-
-        [Test]
-        public void AddPRoductToBasket_WhenProductDoesNotExist_NothingIsAddedToTheBasket()
-        {
-            // Arrange & Act & Assert
-            var productName = product.Name;
-            product = null;
-            AssertBasketDoesNotUpdate(productName, 10);
-        }
-
-        [Test]
-        public void AddProductToBasket_WhenQuantityIsZero_NothingIsAddedToTheBasket()
-        {
-            // Arrange & Act & Assert
-            AssertBasketDoesNotUpdate(product.Name, 0);
-        }
-
-        [Test]
-        public void AddProductToBasket_WhenQuantityIsNegative_NothingIsAddedToTheBasket()
+        
+        [TestCase(false, -1)]
+        [TestCase(false, 0)]
+        [TestCase(true, 10)]
+        public void AddProductToBasket_WhenInvokedWithInvalidArguments_ReturnsFalseNothingIsAddedToTheBasket(bool productIsNull, int quantity)
         {
             // Arrange
-            AssertBasketDoesNotUpdate(product.Name, -1);
+            var productName = product.Name;
+            product = productIsNull ? null : product;
+
+            var initItemCount = basket.Items.Count;
+            var initProductCount = basket.Items.FirstOrDefault(i => i.Product.Name == productName)?.Quantity;
+            var subject = CreateBasketService();
+
+            // Act
+            var result = subject.AddProductToBasket(basket, fixture.Create<string>(), quantity);
+
+            // Assert
+            var finalProductCount = basket.Items.FirstOrDefault(i => i.Product.Name == productName)?.Quantity;
+
+            Assert.IsFalse(result);
+            Assert.AreEqual(initItemCount, basket.Items.Count());
+            Assert.AreEqual(initProductCount, finalProductCount);
         }
 
         [Test]
@@ -152,23 +154,6 @@ namespace Shop.Core.UnitTests.Services
 
             // Assert
             Assert.AreEqual(expected, resut);
-        }
-
-        private void AssertBasketDoesNotUpdate(string productName, int quantity)
-        {
-            // Arrange
-            var initItemCount = basket.Items.Count;
-            var initProductCount = basket.Items.FirstOrDefault(i => i.Product.Name == productName)?.Quantity;
-            var subject = CreateBasketService();
-
-            // Act
-            subject.AddProductToBasket(basket, fixture.Create<string>(), quantity);
-
-            // Assert
-            var finalProductCount = basket.Items.FirstOrDefault(i => i.Product.Name == productName)?.Quantity;
-
-            Assert.AreEqual(initItemCount, basket.Items.Count());
-            Assert.AreEqual(initProductCount, finalProductCount);
         }
 
         private double CalculateTotalWithoutOffers()

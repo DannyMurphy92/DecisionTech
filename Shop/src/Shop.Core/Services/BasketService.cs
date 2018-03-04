@@ -16,7 +16,7 @@ namespace Shop.Core.Services
             this.offers = offers;
         }
 
-        public void AddProductToBasket(Basket basket, string name, int quantity)
+        public bool AddProductToBasket(Basket basket, string name, int quantity)
         {
             if (quantity > 0)
             {
@@ -24,8 +24,12 @@ namespace Shop.Core.Services
                 if (product != null)
                 {
                     basket.AddItem(product, quantity);
+
+                    return true;
                 }
             }
+
+            return false;
         }
 
         public double CalculateTotal(Basket basket)

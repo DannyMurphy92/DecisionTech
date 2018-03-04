@@ -18,3 +18,9 @@
     
     Example: `total`
 
+### exit
+    options
+        null
+        
+    Example: `e`
+

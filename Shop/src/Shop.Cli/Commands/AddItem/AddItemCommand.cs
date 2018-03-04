@@ -1,4 +1,5 @@
-﻿using Shop.Core.Models;
+﻿using System;
+using Shop.Core.Models;
 using Shop.Core.Services.Interfaces;
 
 namespace Shop.Cli.Commands.AddItem
@@ -14,8 +15,17 @@ namespace Shop.Cli.Commands.AddItem
 
         public int Execute(AddItemOptions options, Basket basket)
         {
-            basketService.AddProductToBasket(basket, options.ItemName, options.Quantity);
+            var result = basketService.AddProductToBasket(basket, options.ItemName, options.Quantity);
 
+            if (result)
+            {
+                Console.WriteLine($"Successfully added {options.Quantity} {options.ItemName} to the basket");
+            }
+            else
+            {
+
+                Console.WriteLine($"Could not add {options.Quantity} {options.ItemName} to the basket, please ensure it is a valid input");
+            }
             return 0;
         }
     }
