@@ -24,3 +24,8 @@
         
     Example: `exit`
 
+### list
+    options
+        null
+
+    Example: `list`

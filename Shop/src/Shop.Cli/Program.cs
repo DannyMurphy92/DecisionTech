@@ -15,15 +15,14 @@ namespace Shop.Cli
         public static void Main(string[] args)
         {
             var container = CreateContainer();
-            
-            Console.WriteLine("Enter a command");
-            args = Console.ReadLine()?.Split(' ');
 
             var basket = new Basket();
             var result = 0;
 
             while (args != null && result == 0)
             {
+                Console.WriteLine("Enter a command");
+                args = Console.ReadLine()?.Split(' ');
                 var options = Parser.Default.ParseArguments<AddItemOptions, TotalBasketOptions, ListItemsOptions, ExitOptions>(args);
 
                 result = options.MapResult(
@@ -33,8 +32,6 @@ namespace Shop.Cli
                     (ExitOptions opts) => container.Resolve<ExitCommand>().Execute(opts),
                     errs => 2
                 );
-
-                args = Console.ReadLine()?.Split(' ');
             }
         }
 
