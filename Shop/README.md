@@ -22,5 +22,5 @@
     options
         null
         
-    Example: `e`
+    Example: `exit`
 

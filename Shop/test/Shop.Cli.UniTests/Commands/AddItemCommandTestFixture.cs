@@ -15,6 +15,8 @@ namespace Shop.Cli.UniTests.Commands
         private IFixture fixture;
 
         private Mock<IBasketService> basketServiceMock;
+        private Basket basket;
+        private AddItemOptions options;
 
         [OneTimeSetUp]
         public void OneTimeSetup()
@@ -22,6 +24,13 @@ namespace Shop.Cli.UniTests.Commands
             fixture = new Fixture().Customize(new AutoConfiguredMoqCustomization());
 
             basketServiceMock = fixture.Freeze<Mock<IBasketService>>();
+        }
+
+        [SetUp]
+        public void Setup()
+        {
+            options = fixture.Create<AddItemOptions>();
+            basket = fixture.Create<Basket>();
         }
 
         [TearDown]
@@ -34,8 +43,6 @@ namespace Shop.Cli.UniTests.Commands
         public void Execute_WhenInvoked_CallsBasketService()
         {
             // Arrange
-            var options = fixture.Create<AddItemOptions>();
-            var basket = fixture.Create<Basket>();
             var subject = fixture.Create<AddItemCommand>();
 
             // Act
@@ -43,6 +50,19 @@ namespace Shop.Cli.UniTests.Commands
 
             // Assert
             basketServiceMock.Verify(b => b.AddProductToBasket(basket, options.ItemName, options.Quantity));
+        }
+
+        [Test]
+        public void Execute_WhenInvoked_ReturnsZero()
+        {
+            // Arrange
+            var subject = fixture.Create<AddItemCommand>();
+
+            // Act
+            var result = subject.Execute(options, basket);
+
+            // Assert
+            Assert.AreEqual(0, result);
         }
     }
 }
