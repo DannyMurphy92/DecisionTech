@@ -2,8 +2,9 @@
 using Castle.Windsor;
 using CommandLine;
 using Shop.Cli.Commands;
+using Shop.Cli.Commands.AddItem;
+using Shop.Cli.Commands.TotalBasket;
 using Shop.Cli.Installers;
-using Shop.Core.Installers;
 using Shop.Core.Models;
 
 namespace Shop.Cli
@@ -16,12 +17,16 @@ namespace Shop.Cli
             
             var basket = new Basket();
 
-            while (args[0].ToLower() != "e")
+            Console.WriteLine("Enter a command");
+            args = Console.ReadLine()?.Split(' ');
+
+            while (args != null && args[0].ToLower() != "e")
             {
-                var options = Parser.Default.ParseArguments<AddItemOptions>(args);
+                var options = Parser.Default.ParseArguments<AddItemOptions, TotalBasketOptions>(args);
 
                 options.MapResult(
-                    opts => container.Resolve<AddItemCommand>().Execute(opts, basket),
+                    (AddItemOptions opts) => container.Resolve<AddItemCommand>().Execute(opts, basket),
+                    (TotalBasketOptions opts) => container.Resolve<TotalBasketCommand>().Execute(opts, basket),
                     errs => 1
                 );
 

@@ -1,16 +1,21 @@
-﻿using AutoFixture;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using AutoFixture;
 using AutoFixture.AutoMoq;
 using Moq;
 using NUnit.Framework;
 using Shop.Cli.Commands;
-using Shop.Cli.Commands.AddItem;
+using Shop.Cli.Commands.TotalBasket;
 using Shop.Core.Models;
 using Shop.Core.Services.Interfaces;
 
 namespace Shop.Cli.UniTests.Commands
 {
     [TestFixture]
-    public class AddItemCommandTestFixture
+    public class TotalBasketCommandTestFixture
     {
         private IFixture fixture;
 
@@ -34,15 +39,15 @@ namespace Shop.Cli.UniTests.Commands
         public void Execute_WhenInvoked_CallsBasketService()
         {
             // Arrange
-            var options = fixture.Create<AddItemOptions>();
+            var options = fixture.Create<TotalBasketOptions>();
             var basket = fixture.Create<Basket>();
-            var subject = fixture.Create<AddItemCommand>();
+            var subject = fixture.Create<TotalBasketCommand>();
 
             // Act
             subject.Execute(options, basket);
 
             // Assert
-            basketServiceMock.Verify(b => b.AddProductToBasket(basket, options.ItemName, options.Quantity));
+            basketServiceMock.Verify(b => b.CalculateTotal(basket));
         }
     }
 }

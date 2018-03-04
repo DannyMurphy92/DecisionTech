@@ -1,6 +1,6 @@
 ﻿using CommandLine;
 
-namespace Shop.Cli.Commands
+namespace Shop.Cli.Commands.AddItem
 {
     [Verb("add")]
     public class AddItemOptions

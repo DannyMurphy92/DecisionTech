@@ -1,7 +1,7 @@
 ﻿using Shop.Core.Models;
 using Shop.Core.Services.Interfaces;
 
-namespace Shop.Cli.Commands
+namespace Shop.Cli.Commands.AddItem
 {
     public class AddItemCommand
     {
